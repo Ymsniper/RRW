@@ -1,0 +1,33 @@
+# ==============================================================================
+# RRW (Rick Roll Wifi) - System & Python Requirements
+# ==============================================================================
+#
+# PYTHON DEPENDENCIES (pip install):
+# None. This script uses ONLY Python 3 standard library modules:
+#   - os, sys, time, threading, subprocess, re, signal, http.server
+#
+# Do NOT run: pip install -r requirements.txt
+#
+# ------------------------------------------------------------------------------
+# SYSTEM EXECUTABLE DEPENDENCIES (OS Level):
+# The Python script interacts directly with the following Linux binaries via 
+# subprocess.run(). If ANY of these are missing from your $PATH, the tool will crash.
+#
+# [REQUIRED BINARIES]
+#   - hostapd       (Called to start the Rogue Access Point)
+#   - dnsmasq       (Called to assign IPs and redirect DNS)
+#   - iptables      (Called to hijack and redirect HTTP/HTTPS traffic)
+#   - iw            (Called via `iw dev` to find wireless interfaces)
+#   - ip            (Called via `ip addr` and `ip link` to configure the interface)
+#   - airmon-ng     (Called via `airmon-ng check kill` to stop interfering processes)
+#   - pgrep         (Called to verify hostapd/dnsmasq are running)
+#   - killall       (Called during cleanup to stop hostapd/dnsmasq)
+#   - systemctl     (Called during cleanup to restart NetworkManager)
+#
+# [ONE-COMMAND INSTALLATION FOR DEBIAN/UBUNTU/KALI]
+# sudo apt update && sudo apt install -y hostapd dnsmasq iptables iw iproute2 aircrack-ng procps psmisc
+#
+# [HARDWARE REQUIREMENT]
+# A wireless network adapter that supports AP (Access Point) mode.
+#
+# ==============================================================================
