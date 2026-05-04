@@ -1,6 +1,4 @@
-Here is the README formatted as plain text, optimized for a `README.txt` file. You can copy and paste this directly into your repository.
 
-```text
 ================================================================================
                     RRW - Rick Roll Wifi
 ================================================================================
