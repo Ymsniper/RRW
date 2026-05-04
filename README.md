@@ -1,121 +1,88 @@
+# RRW — Rick Roll Wifi
 
-================================================================================
-                    RRW - Rick Roll Wifi
-================================================================================
+RRW is a Wi‑Fi captive portal demo for authorized security labs, classroom exercises, and harmless pranks done with clear permission.
 
-RRW is a professional-looking Wi-Fi captive portal designed for harmless pranks 
-and penetration testing labs. It broadcasts a fake Wi-Fi network and serves a 
-highly convincing "Terms of Service" login page. Once the victim clicks 
-"Accept", they are seamlessly Rick-Rolled in fullscreen with audio.
+## Overview
 
-Built natively in Python 3, utilizing hostapd and dnsmasq for Rogue AP creation.
+This project presents a network login page and then displays a fullscreen Rick Astley video after the user interacts with the page. It is intended only for controlled environments where you have explicit authorization to test or demonstrate captive portal behavior.
 
---------------------------------------------------------------------------------
-WARNING: EDUCATIONAL & PRANK USE ONLY
---------------------------------------------------------------------------------
-RRW creates a Rogue Access Point. Intercepting or redirecting network traffic 
-without explicit, documented consent is illegal. This tool is intended strictly 
-for authorized security audits, CTF events, and pranking friends (with 
-permission). The author assumes no liability for misuse.
+## Educational & Authorized Use Only
 
+Use this project only in environments you own or are permitted to test.
 
-================================================================================
-HOW IT WORKS
-================================================================================
+Do not use it to:
+- intercept traffic without consent
+- impersonate public or private networks
+- collect credentials or personal data
+- disrupt third-party devices or networks
 
-1. Rogue AP: Uses hostapd to broadcast a fake SSID (default: FREE_WIFI).
-2. DHCP/DNS: Uses dnsmasq to assign IPs to victims and force all DNS requests 
-   to the host machine.
-3. Traffic Redirection: Uses iptables to hijack HTTP/HTTPS traffic, sending it 
-   to a local Python web server.
-4. The Trap: Serves a realistic, mobile-responsive network login UI.
-5. The Payload: Hides the UI and drops the victim into an inescapable fullscreen 
-   Rick Astley music video.
+## Features
 
+- Custom captive portal-style login page
+- Mobile-friendly layout
+- Configurable SSID and channel
+- Local logging for lab use
+- Easy cleanup on exit
 
-================================================================================
-PREREQUISITES
-================================================================================
+## Requirements
 
-SYSTEM PACKAGES (Debian/Ubuntu/Kali):
--------------------------------------
+### System packages
+Debian / Ubuntu / Kali:
+```bash
 sudo apt update
 sudo apt install hostapd dnsmasq iptables python3 iw
-
-HARDWARE:
----------
-A Wi-Fi adapter that supports AP (Access Point) mode. 
-Check your adapter with: 
-    iw list | grep -A 10 "Supported interface modes"
-(Look for "* AP" in the output).
-
-
-================================================================================
-USAGE
-================================================================================
-
-1. CLONE THE REPOSITORY:
-   git clone https://github.com/YOUR_USERNAME/RRW.git
-   cd RRW
-
-   NOTE: RRW uses only Python standard libraries, so no "pip install" is 
-   needed. See requirements.txt for details.
-
-2. PROVIDE THE VIDEO:
-   By default, RRW looks for: 
-   /home/sinstriker/FINALRICKROLL/rickroll_video/rickroll.mp4
-   
-   Change the VIDEO_PATH variable at the top of rrw.py to match where your 
-   rickroll.mp4 is actually located.
-
-3. RUN RRW (REQUIRES ROOT):
-   sudo python3 rrw.py
-
-4. FOLLOW THE PROMPTS:
-   - Enter your desired Wi-Fi name.
-   - Select your Wi-Fi adapter.
-   - Wait for victims to connect!
-
-5. STOP RRW:
-   Press Ctrl+C. The script automatically cleans up iptables, kills 
-   background processes, and restores your network.
-
-
-================================================================================
-CONFIGURATION
-================================================================================
-
-Easily tweak the variables inside rrw.py:
-
-- VIDEO_PATH: Absolute path to your Rick Roll video.
-- SSID: Default Wi-Fi name (e.g., FREE_WIFI, Airport_WiFi).
-- CHANNEL: Wi-Fi channel (default: 6).
-
-
-================================================================================
-NOTES
-================================================================================
-
-- HTTPS WARNINGS: Victims may see a "Connection is not private" warning 
-  because HTTPS traffic is being forcibly redirected. The realistic TOS UI 
-  usually encourages them to click "Advanced -> Proceed anyway".
-
-- iOS AUDIO FIX: Includes a specific JavaScript fallback to unmute audio on 
-  Safari/iOS, as Apple requires a direct user gesture to trigger sound.
-
-- LOGGING: Victim IPs and timestamps are saved locally to 
-  rickroll_victims.txt (this file is git-ignored for privacy).
-
-
-================================================================================
-LICENSE & REQUIREMENTS
-================================================================================
-
-- License: This project is licensed under the MIT License. Please see the 
-  included LICENSE file for full details.
-  
-- Requirements: See the included requirements.txt file for system dependency 
-  information (no Python pip packages are required).
-
-================================================================================
 ```
+
+### Hardware
+A Wi‑Fi adapter that supports Access Point mode.
+
+Check support with:
+```bash
+iw list | grep -A 10 "Supported interface modes"
+```
+Look for `* AP` in the output.
+
+## Usage
+
+1. Clone the repository:
+```bash
+git clone https://github.com/YOUR_USERNAME/RRW.git
+cd RRW
+```
+
+2. Configure the video path:
+Set `VIDEO_PATH` in `rrw.py` to the location of your `rickroll.mp4` file.
+
+3. Run the script as root:
+```bash
+sudo python3 rrw.py
+```
+
+4. Follow the prompts:
+- Enter the Wi‑Fi name
+- Select the adapter
+- Start the demo
+
+5. Stop the demo:
+Press `Ctrl+C` to clean up background services and restore the system state.
+
+## Configuration
+
+Common settings in `rrw.py`:
+- `VIDEO_PATH`: path to the Rick Roll video
+- `SSID`: default Wi‑Fi name
+- `CHANNEL`: Wi‑Fi channel
+
+## Notes
+
+- Some devices may show connection warnings in captive portal demos.
+- On iOS / Safari, media playback may require a direct user gesture.
+- Logs, if enabled, are stored locally for lab use.
+
+## License
+
+MIT License. See the `LICENSE` file for details.
+
+## Requirements File
+
+This project uses standard Python 3 libraries plus system dependencies listed above.
