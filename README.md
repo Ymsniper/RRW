@@ -54,11 +54,11 @@ cd RRW
 ```
 
 2. Configure the video path:
-Set `VIDEO_PATH` in `rrw.py` to the location of your `rickroll.mp4` file.
+Set `VIDEO_PATH` in `RRW.py` to the location of your `rickroll.mp4` file.
 
 3. Run the script as root:
 ```bash
-sudo python3 rrw.py
+sudo python3 RRW.py
 ```
 
 4. Follow the prompts:
@@ -71,7 +71,7 @@ Press `Ctrl+C` to clean up background services and restore the system state.
 
 ## Configuration
 
-Common settings in `rrw.py`:
+Common settings in `RRE.py`:
 - `VIDEO_PATH`: path to the Rick Roll video
 - `SSID`: default Wi‑Fi name
 - `CHANNEL`: Wi‑Fi channel
