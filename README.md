@@ -71,7 +71,7 @@ Press `Ctrl+C` to clean up background services and restore the system state.
 
 ## Configuration
 
-Common settings in `RRE.py`:
+Common settings in `RRW.py`:
 - `VIDEO_PATH`: path to the Rick Roll video
 - `SSID`: default Wi‑Fi name
 - `CHANNEL`: Wi‑Fi channel
