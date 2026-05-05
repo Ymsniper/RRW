@@ -1,6 +1,9 @@
 # RRW — Rick Roll Wifi
 
 RRW is a Wi‑Fi captive portal demo for authorized security labs, classroom exercises, and harmless pranks done with clear permission.
+<img width="1239" height="844" alt="Screenshot_20260505_005838" src="https://github.com/user-attachments/assets/4c95b639-a659-4b95-8fd7-4e532b302b3e" />
+<img width="1239" height="844" alt="Screenshot_20260505_005908" src="https://github.com/user-attachments/assets/5275fa96-c78e-4862-a888-4375ddd77ce5" />
+
 
 ## Overview
 
