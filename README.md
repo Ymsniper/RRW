@@ -49,7 +49,7 @@ Look for `* AP` in the output.
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/YOUR_USERNAME/RRW.git
+git clone https://github.com/Ymsniper/RRW.git
 cd RRW
 ```
 
