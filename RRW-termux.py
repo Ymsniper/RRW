@@ -27,6 +27,21 @@ VIDEO_PATH = os.path.join(SCRIPT_DIR, "rickroll.mp4")
 SSID    = "FREE_WIFI"
 CHANNEL = 6
 AP_IFACE = None
+HOSTAPD_BIN = None   # resolved at runtime by find_hostapd_binary()
+
+# Compiling hostapd from source in Termux is a known headache (the legacy
+# WEXT/driver_hostap.c code conflicts with bionic's netlink headers, and
+# even with that disabled, your specific WiFi chip's nl80211 quirks may
+# not be handled). Android's OWN hostapd binary — the one that powers the
+# native Hotspot feature — already supports your exact chip and is sitting
+# on the device. We use that instead of compiling our own.
+VENDOR_HOSTAPD_PATHS = [
+    "/vendor/bin/hw/hostapd",
+    "/vendor/bin/hostapd",
+    "/system/bin/hostapd",
+    "/vendor/bin/hostapd_default",
+    "/odm/bin/hw/hostapd",
+]
 
 # Termux sets $TMPDIR; fall back to /data/local/tmp if missing
 TMPDIR = os.environ.get("TMPDIR", "/data/local/tmp")
@@ -54,14 +69,38 @@ def run_out(cmd):
 # ============ DEPENDENCY CHECK ============
 def check_dependencies():
     missing = []
-    for dep in ["hostapd", "dnsmasq", "iw", "ip", "iptables"]:
+    for dep in ["dnsmasq", "iw", "ip", "iptables"]:
         if not run_out(f"which {dep}"):
             missing.append(dep)
     if missing:
         print(f"\n❌  Missing binaries: {', '.join(missing)}")
         print("    Install in Termux:\n")
-        print("      pkg install hostapd dnsmasq iw iproute2 iptables\n")
+        print("      pkg install dnsmasq iw iproute2 iptables\n")
         sys.exit(1)
+
+def find_hostapd_binary():
+    """
+    Locate a usable hostapd binary. Preference order:
+      1. Android's own vendor/system hostapd (already supports your chip,
+         since it's what powers the native Hotspot feature — no compiling).
+      2. A filesystem-wide search, in case your OEM put it somewhere unusual.
+      3. Whatever 'hostapd' resolves to on $PATH (e.g. a Termux-compiled one).
+    """
+    for path in VENDOR_HOSTAPD_PATHS:
+        if os.path.exists(path):
+            return path
+
+    found = run_out(
+        "find /vendor /system /odm -iname 'hostapd*' -type f 2>/dev/null | head -n1"
+    )
+    if found:
+        return found
+
+    on_path = run_out("which hostapd")
+    if on_path:
+        return on_path
+
+    return None
 
 # ============ INTERFACE DETECTION ============
 def get_wireless_interfaces():
@@ -74,6 +113,10 @@ def get_wireless_interfaces():
         for name in ["wlan0", "wlan1", "ap0"]:
             if run_out(f"ip link show {name} 2>/dev/null"):
                 ifaces.append(name)
+
+    # ap0 is the interface Android purpose-built for master/AP mode —
+    # put it first since it's the safest bet once we kill the wifi client.
+    ifaces.sort(key=lambda i: 0 if i == "ap0" else 1)
     return ifaces
 
 # ============ HTTP HANDLER ============
@@ -272,7 +315,16 @@ def kill_interfering():
     time.sleep(2)
 
 def start_hostapd():
-    global AP_IFACE, SSID, CHANNEL
+    global AP_IFACE, SSID, CHANNEL, HOSTAPD_BIN
+
+    HOSTAPD_BIN = find_hostapd_binary()
+    if not HOSTAPD_BIN:
+        print("\n❌  No hostapd binary found anywhere (vendor, system, or $PATH).")
+        print("    This shouldn't happen on a phone with working Hotspot —")
+        print("    double check by running:  find /vendor /system -iname 'hostapd*'")
+        return False
+    print(f"[*] Using hostapd: {HOSTAPD_BIN}")
+
     cfg = (
         f"interface={AP_IFACE}\n"
         f"driver=nl80211\n"
@@ -287,24 +339,34 @@ def start_hostapd():
     with open(HOSTAPD_CONF, "w") as f:
         f.write(cfg)
 
-    run("killall -9 hostapd 2>/dev/null")
+    run(f"pkill -9 -f hostapd 2>/dev/null")
     time.sleep(1)
     run(f"ip addr flush dev {AP_IFACE}")
     run(f"ip link set {AP_IFACE} up")
 
+    # Vendor/system binaries are dynamically linked against Android's own
+    # libc/libnl/libcutils. Termux sets LD_PRELOAD=libtermux-exec.so for its
+    # own userland tools, which can break or crash a non-Termux executable —
+    # so we strip it just for this child process.
+    env = os.environ.copy()
+    env.pop("LD_PRELOAD", None)
+
     r = subprocess.run(
-        f"hostapd {HOSTAPD_CONF} -B",
+        f"{HOSTAPD_BIN} -B {HOSTAPD_CONF}",
         shell=True,
+        env=env,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
     if r.returncode != 0:
-        print("[-] hostapd failed to start. Does your adapter support AP mode?")
-        print(f"    Debug: hostapd {HOSTAPD_CONF}  (run without -B to see errors)")
+        print("[-] hostapd failed to start.")
+        print(f"    Debug (run manually to see the real error):")
+        print(f"      unset LD_PRELOAD; {HOSTAPD_BIN} {HOSTAPD_CONF}")
         return False
 
     time.sleep(2)
-    alive = run_out(f"pgrep -f 'hostapd {HOSTAPD_CONF}'")
+    alive = run_out(f"pgrep -f '{os.path.basename(HOSTAPD_BIN)}.*{HOSTAPD_CONF}'") or \
+            run_out(f"pgrep -f hostapd")
     if not alive:
         print("[-] hostapd died immediately. Check driver support.")
         return False
@@ -370,7 +432,8 @@ def setup_iptables():
 def cleanup():
     global AP_IFACE
     print("\n[*] Cleaning up...")
-    run("killall -9 hostapd dnsmasq 2>/dev/null")
+    run("pkill -9 -f hostapd 2>/dev/null")
+    run("killall -9 dnsmasq 2>/dev/null")
     time.sleep(1)
     if AP_IFACE:
         run(f"ip addr flush dev {AP_IFACE}")
