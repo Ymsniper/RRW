@@ -43,14 +43,19 @@ VENDOR_HOSTAPD_PATHS = [
     "/odm/bin/hw/hostapd",
 ]
 
-# Termux sets $TMPDIR; fall back to /data/local/tmp if missing
-TMPDIR = os.environ.get("TMPDIR", "/data/local/tmp")
+# Confirmed by real-device testing: Termux's own $TMPDIR lives inside the app's
+# private SELinux-sandboxed data directory, which the vendor hostapd binary's
+# HAL domain cannot read regardless of file permissions or root. /data/local/tmp
+# is the standard "neutral ground" directory most domains, including vendor HAL
+# processes, are allowed to access — so we use that unconditionally, not $TMPDIR.
+TMPDIR = "/data/local/tmp"
 
 HOSTAPD_CONF = os.path.join(TMPDIR, "rrw_hostapd.conf")
 DNSMASQ_CONF = os.path.join(TMPDIR, "rrw_dnsmasq.conf")
 DNSMASQ_PID  = os.path.join(TMPDIR, "rrw_dnsmasq.pid")
 
 server = None
+ORIGINAL_SELINUX = None  # captured so cleanup() restores whatever it was before
 
 # ============ HELPERS ============
 def run(cmd, silent=True):
@@ -314,6 +319,27 @@ def kill_interfering():
     run("killall -9 wpa_supplicant 2>/dev/null") # belt-and-suspenders
     time.sleep(2)
 
+def relax_selinux():
+    """
+    Confirmed by real-device testing: the vendor hostapd binary's SELinux
+    domain (hal_wifi_hostapd_default) gets denied when exec'd outside of
+    init's normal service-launch path. Setting permissive fixes this.
+    We capture the original state so cleanup() can restore it.
+    """
+    global ORIGINAL_SELINUX
+    ORIGINAL_SELINUX = run_out("getenforce")
+    if ORIGINAL_SELINUX == "Enforcing":
+        print("[*] Setting SELinux to permissive (required for vendor hostapd exec)...")
+        run("setenforce 0")
+        if run_out("getenforce") != "Permissive":
+            print("[!] setenforce didn't take effect — your device may lock this down.")
+            print("    hostapd may still fail to start.")
+
+def restore_selinux():
+    if ORIGINAL_SELINUX == "Enforcing":
+        run("setenforce 1")
+        print("[+] SELinux enforcement restored.")
+
 def start_hostapd():
     global AP_IFACE, SSID, CHANNEL, HOSTAPD_BIN
 
@@ -448,6 +474,7 @@ def cleanup():
         run(f"iptables -t nat -D PREROUTING -i {iface} -p tcp --dport 443 -j DNAT --to-destination 10.0.0.1:80 2>/dev/null")
     # Re-enable Android WiFi
     run("svc wifi enable")
+    restore_selinux()
     print("[+] Done. Android WiFi re-enabled.")
 
 def signal_handler(sig, frame):
@@ -498,9 +525,14 @@ def main():
     else:
         print("\nWireless interfaces:")
         for i, iface in enumerate(ifaces, 1):
-            print(f"  {i}. {iface}")
+            tag = "  (recommended — dedicated AP interface)" if iface == "ap0" else ""
+            print(f"  {i}. {iface}{tag}")
+        default_iface = ifaces[0]  # ap0 sorts first when present
         while True:
-            choice = input("\nSelect AP interface (number or name): ").strip()
+            choice = input(f"\nSelect AP interface (number or name) [{default_iface}]: ").strip()
+            if not choice:
+                AP_IFACE = default_iface
+                break
             if choice.isdigit():
                 idx = int(choice) - 1
                 if 0 <= idx < len(ifaces):
@@ -512,6 +544,7 @@ def main():
             print("  Invalid — try again.")
 
     kill_interfering()
+    relax_selinux()
 
     if not start_hostapd():
         cleanup()
