@@ -340,7 +340,8 @@ def cleanup():
         subprocess.run(f"iptables -D INPUT -i {AP_IFACE} -p tcp --dport 443 -j ACCEPT 2>/dev/null", shell=True)
         subprocess.run(f"iptables -t nat -D PREROUTING -i {AP_IFACE} -p tcp --dport 80 -j DNAT --to-destination 10.0.0.1:80 2>/dev/null", shell=True)
         subprocess.run(f"iptables -t nat -D PREROUTING -i {AP_IFACE} -p tcp --dport 443 -j DNAT --to-destination 10.0.0.1:80 2>/dev/null", shell=True)
-    subprocess.run("systemctl restart NetworkManager 2>/dev/null", shell=True)
+    # Hand the interface back to NetworkManager — does NOT disturb other interfaces
+    subprocess.run(f"nmcli device set {AP_IFACE} managed yes 2>/dev/null", shell=True)
     print("[+] Cleanup complete.")
 
 def signal_handler(sig, frame):
@@ -384,9 +385,12 @@ def main():
             AP_IFACE = choice
             break
         print("Invalid choice.")
-    print("\n[*] Killing interfering processes...")
-    subprocess.run("airmon-ng check kill", shell=True, stderr=subprocess.DEVNULL)
-    time.sleep(2)
+    print(f"\n[*] Unmanaging {AP_IFACE} from NetworkManager (other interfaces unaffected)...")
+    # Tell NetworkManager to release ONLY this interface — no global kills
+    subprocess.run(f"nmcli device set {AP_IFACE} managed no 2>/dev/null", shell=True)
+    # Disconnect wpa_supplicant from this interface only, without killing the daemon
+    subprocess.run(f"wpa_cli -i {AP_IFACE} terminate 2>/dev/null", shell=True)
+    time.sleep(1)
     if not start_hostapd():
         cleanup()
         sys.exit(1)
