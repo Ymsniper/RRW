@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{SSID} Portal</title>
+    <style>
+        :root {
+            --espresso:      #0e0904;
+            --mahogany:      #1b1108;
+            --umber:         #2d1c0d;
+            --cream:         #ede5d4;
+            --parchment:     #a8997e;
+            --caramel:       #c49038;
+            --caramel-glow:  rgba(196,144,56,0.22);
+            --caramel-hover: #d4a048;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: var(--espresso);
+            background-image:
+                radial-gradient(ellipse 90% 45% at 50% 0%,
+                    rgba(72,34,6,0.65), transparent);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+
+        /* ── Card shell ── */
+        .card {
+            position: relative;
+            width: 100%;
+            max-width: 360px;
+            background: var(--mahogany);
+            border-radius: 16px;
+            border: 1px solid var(--umber);
+            padding: 46px 32px 38px;
+            text-align: center;
+            box-shadow:
+                0 0 0 1px rgba(196,144,56,0.10),
+                0 48px 80px -20px rgba(0,0,0,0.88);
+        }
+
+        /* subtle inner rim */
+        .card::before {
+            content: '';
+            position: absolute;
+            inset: 4px;
+            border-radius: 12px;
+            border: 1px solid rgba(237,229,212,0.045);
+            pointer-events: none;
+        }
+
+        /* ── Cup + animated steam ── */
+        .cup-area {
+            position: relative;
+            width: 64px;
+            height: 92px;
+            margin: 0 auto 30px;
+        }
+
+        .cup-icon {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .wisp {
+            position: absolute;
+            bottom: 46px;
+            opacity: 0;
+        }
+        .wisp-1 { left: 6px;  animation: steam-rise 2.8s ease-in-out 0.00s infinite; }
+        .wisp-2 { left: 22px; animation: steam-rise 2.8s ease-in-out 0.90s infinite; }
+        .wisp-3 { left: 38px; animation: steam-rise 2.8s ease-in-out 1.80s infinite; }
+
+        @keyframes steam-rise {
+            0%   { transform: translateY(4px)   scaleX(1.0); opacity: 0;    }
+            16%  {                                            opacity: 0.65; }
+            70%  {                                            opacity: 0.18; }
+            100% { transform: translateY(-34px) scaleX(1.6); opacity: 0;    }
+        }
+
+        /* ── Typography ── */
+        .eyebrow {
+            font-family: 'Courier New', ui-monospace, monospace;
+            font-size: 9px;
+            letter-spacing: 0.42em;
+            text-transform: uppercase;
+            color: var(--caramel);
+            opacity: 0.72;
+            margin-bottom: 12px;
+        }
+
+        .ssid {
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 42px;
+            font-weight: normal;
+            color: var(--cream);
+            line-height: 1.08;
+            letter-spacing: -0.01em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            color: var(--parchment);
+            letter-spacing: 0.07em;
+            margin-bottom: 30px;
+        }
+
+        /* ── Divider ── */
+        .rule {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 26px;
+        }
+        .rule::before,
+        .rule::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--umber) 40%, var(--umber) 60%, transparent);
+        }
+        .rule-pip {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--caramel);
+            opacity: 0.5;
+        }
+
+        /* ── ToS box ── */
+        .tos-box {
+            background: rgba(255,255,255,0.025);
+            border: 1px solid rgba(237,229,212,0.08);
+            border-radius: 9px;
+            padding: 18px 16px;
+            font-size: 13px;
+            line-height: 1.75;
+            color: var(--parchment);
+            margin-bottom: 22px;
+        }
+
+        /* ── Connect button ── */
+        .accept-btn {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            padding: 16px;
+            background: var(--caramel);
+            border: none;
+            border-radius: 8px;
+            color: #1d0e03;
+            font-family: inherit;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow:
+                0 6px 24px var(--caramel-glow),
+                0 2px 6px rgba(0,0,0,0.35);
+            transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+        }
+
+        /* shimmer sweep */
+        .accept-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -110%;
+            width: 55%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255,255,255,0.26),
+                transparent
+            );
+            transform: skewX(-18deg);
+            transition: left 0.58s ease;
+        }
+
+        .accept-btn:hover {
+            background: var(--caramel-hover);
+            box-shadow:
+                0 10px 32px rgba(196,144,56,0.42),
+                0 2px 8px rgba(0,0,0,0.35);
+        }
+        .accept-btn:hover::after { left: 165%; }
+        .accept-btn:active       { transform: scale(0.98); }
+
+        /* ── Footer stamp ── */
+        .stamp {
+            margin-top: 20px;
+            font-family: 'Courier New', ui-monospace, monospace;
+            font-size: 9px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(196,144,56,0.28);
+        }
+    </style>
+</head>
+<body>
+    <div class="card" id="tos-ui">
+
+        <!-- Cup icon with three rising steam wisps -->
+        <div class="cup-area">
+            <svg class="wisp wisp-1" viewBox="0 0 10 38" width="10" height="38">
+                <path d="M5 36 C3 27 8 21 5 13 C3 6 7 2 5 -2"
+                    fill="none" stroke="#c49038" stroke-width="1.45" stroke-linecap="round"/>
+            </svg>
+            <svg class="wisp wisp-2" viewBox="0 0 10 38" width="10" height="38">
+                <path d="M5 36 C7 27 2 21 5 13 C7 6 3 2 5 -2"
+                    fill="none" stroke="#c49038" stroke-width="1.45" stroke-linecap="round"/>
+            </svg>
+            <svg class="wisp wisp-3" viewBox="0 0 10 38" width="10" height="38">
+                <path d="M5 36 C3 27 8 21 5 13 C3 6 7 2 5 -2"
+                    fill="none" stroke="#c49038" stroke-width="1.45" stroke-linecap="round"/>
+            </svg>
+            <svg class="cup-icon" viewBox="0 0 24 24" width="54" height="54"
+                 fill="none" stroke="#c49038" stroke-width="1.25"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 8h13v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8z"/>
+                <path d="M17 9h1.5a2.5 2.5 0 0 1 0 5H17"/>
+            </svg>
+        </div>
+
+        <div class="eyebrow">Free Guest Wi-Fi</div>
+        <h1 class="ssid">{SSID}</h1>
+        <p class="subtitle">No password &middot; complimentary access</p>
+
+        <div class="rule"><span class="rule-pip"></span></div>
+
+        <div class="tos-box">
+            Grab a seat and enjoy the Wi-Fi — it's on the house.
+            By connecting you agree to use this network responsibly.
+        </div>
+
+        <button class="accept-btn" id="accept-btn">Connect to Wi-Fi</button>
+
+        <p class="stamp">Guest Network</p>
+
+    </div>
+
+    <!-- Hidden Rickroll Layer -->
+    <div id="video-layer" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #000; z-index: 9999; justify-content: center; align-items: center;">
+        <div id="ios-unmute-fallback" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; z-index: 10000;"></div>
+        <video id="rickroll-video" autoplay loop playsinline style="max-width: 100%; max-height: 100%; width: auto; height: auto; display: block;">
+            <source src="{VIDEO_SRC}" type="{VIDEO_MIME}">
+        </video>
+    </div>
+
+    <script>
+        var video = document.getElementById('rickroll-video');
+        var tosUI = document.getElementById('tos-ui');
+        var videoLayer = document.getElementById('video-layer');
+        var acceptBtn = document.getElementById('accept-btn');
+        var iosFallback = document.getElementById('ios-unmute-fallback');
+
+        if (acceptBtn) {
+            acceptBtn.addEventListener('click', function() {
+                tosUI.style.display = 'none';
+                videoLayer.style.display = 'flex';
+                video.muted = false;
+                var playPromise = video.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(_ => { iosFallback.style.display = 'none'; })
+                    .catch(error => {
+                        video.muted = true; video.play();
+                        iosFallback.style.display = 'block';
+                    });
+                }
+            });
+        }
+        if (iosFallback) {
+            iosFallback.addEventListener('click', function() {
+                video.muted = false; video.play();
+                iosFallback.style.display = 'none';
+            });
+        }
+    </script>
+</body>
+</html>

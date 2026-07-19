@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{SSID} Portal</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f5f7; margin: 0; padding: 0;
+            display: flex; justify-content: center; align-items: center; min-height: 100vh;
+        }
+        .card {
+            background: #ffffff; width: 90%; max-width: 400px; border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 30px 20px; text-align: center;
+        }
+        .wifi-icon { width: 40px; height: 40px; margin-bottom: 15px; fill: #333; }
+        h2 { margin: 0 0 5px 0; color: #1a1a1a; font-size: 22px; }
+        .subtitle { color: #666; font-size: 14px; margin-bottom: 20px; }
+        .tos-box {
+            text-align: left; background: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 4px;
+            padding: 15px; height: 180px; overflow-y: auto; font-size: 13px; color: #444;
+            line-height: 1.5; margin-bottom: 25px;
+        }
+        .accept-btn {
+            background-color: #0066cc; color: white; border: none; padding: 14px; width: 100%;
+            border-radius: 4px; font-size: 16px; font-weight: 500; cursor: pointer; transition: background-color 0.2s;
+        }
+        .accept-btn:hover { background-color: #0052a3; }
+
+        #video-layer {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: #000; z-index: 9999;
+            justify-content: center; align-items: center;
+        }
+        video { max-width: 100%; max-height: 100%; width: auto; height: auto; display: block; }
+        #ios-unmute-fallback { display: none; position: fixed; top:0; left:0; width:100%; height:100%; z-index: 10000; }
+    </style>
+</head>
+<body>
+    <div class="card" id="tos-ui">
+        <svg class="wifi-icon" viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+        <h2>{SSID} Portal</h2>
+        <p class="subtitle">Network Login Required</p>
+        <div class="tos-box">
+            <h4>Terms of Service</h4>
+            <p><strong>Welcome to {SSID}</strong></p>
+            <p>To continue browsing, please review and accept our network terms:</p>
+            <p><strong>1. Data Allowance</strong><br>This Wi-Fi network is limited to 20GB per 24-hour period per device. Once this limit is reached, your connection may be paused or restricted until the 24-hour cycle resets.</p>
+            <p><strong>2. Acceptable Use</strong><br>You agree to use this network for lawful purposes only and in a way that does not infringe upon the rights of others.</p>
+            <p><strong>3. Privacy & Security</strong><br>This is a public network. We do not monitor, log, or store your personal browsing data. However, as with any public Wi-Fi, we recommend using a VPN when accessing sensitive information.</p>
+            <p><strong>4. Service Availability</strong><br>We strive to provide a stable connection, but do not guarantee uninterrupted service, speed, or bandwidth at all times.</p>
+            <p>By clicking the button below, you acknowledge that you have read and agree to these terms.</p>
+        </div>
+        <button class="accept-btn" id="accept-btn">I Accept & Connect</button>
+    </div>
+
+    <div id="video-layer">
+        <div id="ios-unmute-fallback"></div>
+        <video id="rickroll-video" autoplay loop playsinline>
+            <source src="{VIDEO_SRC}" type="{VIDEO_MIME}">
+        </video>
+    </div>
+
+    <script>
+        var video = document.getElementById('rickroll-video');
+        var tosUI = document.getElementById('tos-ui');
+        var videoLayer = document.getElementById('video-layer');
+        var acceptBtn = document.getElementById('accept-btn');
+        var iosFallback = document.getElementById('ios-unmute-fallback');
+
+        acceptBtn.addEventListener('click', function() {
+            tosUI.style.display = 'none';
+            videoLayer.style.display = 'flex';
+            video.muted = false;
+            var playPromise = video.play();
+            if (playPromise !== undefined) {
+                playPromise.then(_ => { iosFallback.style.display = 'none'; })
+                .catch(error => {
+                    video.muted = true; video.play();
+                    iosFallback.style.display = 'block';
+                });
+            }
+        });
+        iosFallback.addEventListener('click', function() {
+            video.muted = false; video.play();
+            iosFallback.style.display = 'none';
+        });
+    </script>
+</body>
+</html>

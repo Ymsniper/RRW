@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{SSID} — Guest Portal</title>
+    <style>
+        :root {
+            --bg:          #07090e;
+            --card:        #0c1220;
+            --surface:     #111827;
+            --border:      #1a2540;
+            --border-mid:  #243258;
+            --burgundy:    #8b1a2f;
+            --burg-hover:  #a82038;
+            --gold:        #c9a84c;
+            --gold-pale:   #d4b86a;
+            --gold-glow:   rgba(201,168,76,0.10);
+            --gold-border: rgba(201,168,76,0.20);
+            --text:        #dde3f0;
+            --text-2:      #6a7a98;
+            --text-3:      #36455e;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            background-image:
+                radial-gradient(ellipse at 15% 60%, rgba(139,26,47,0.07) 0%, transparent 55%),
+                radial-gradient(ellipse at 85% 25%, rgba(201,168,76,0.04) 0%, transparent 50%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* ── CARD ── */
+        .card {
+            width: 100%;
+            max-width: 420px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.03),
+                0 28px 70px rgba(0,0,0,0.65),
+                0 8px 20px rgba(0,0,0,0.4);
+        }
+
+        /* Gradient accent rule at top */
+        .accent-rule {
+            height: 3px;
+            background: linear-gradient(90deg, var(--burgundy) 0%, var(--gold) 100%);
+        }
+
+        /* ── HEADER ── */
+        .header {
+            padding: 22px 26px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+        }
+
+        .header-left {}
+
+        .net-label {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 9px;
+        }
+
+        .pulse-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--gold);
+            border-radius: 50%;
+            flex-shrink: 0;
+            animation: dot-pulse 2.2s ease-in-out infinite;
+        }
+
+        @keyframes dot-pulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(201,168,76,0.45); }
+            55%       { opacity: 0.7; box-shadow: 0 0 0 5px rgba(201,168,76,0); }
+        }
+
+        .net-name {
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 21px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.02em;
+            line-height: 1.15;
+            margin-bottom: 3px;
+        }
+
+        .net-sub {
+            font-size: 11.5px;
+            color: var(--text-2);
+            letter-spacing: 0.01em;
+        }
+
+        /* CSS signal bars — no image needed */
+        .signal-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            height: 18px;
+            margin-top: 2px;
+        }
+
+        .signal-bars span {
+            display: block;
+            width: 4px;
+            border-radius: 1.5px;
+            background: var(--burgundy);
+        }
+
+        .signal-bars span:nth-child(1) { height: 5px; }
+        .signal-bars span:nth-child(2) { height: 9px; }
+        .signal-bars span:nth-child(3) { height: 14px; }
+        .signal-bars span:nth-child(4) { height: 18px; }
+
+        /* ── BODY ── */
+        .body {
+            padding: 24px 26px 26px;
+        }
+
+        .section-eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .eyebrow-text {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--text-3);
+            white-space: nowrap;
+        }
+
+        .eyebrow-rule {
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        h2 {
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 30px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.025em;
+            line-height: 1.1;
+            margin-bottom: 7px;
+        }
+
+        .tagline {
+            font-size: 13px;
+            color: var(--text-2);
+            line-height: 1.55;
+            margin-bottom: 22px;
+        }
+
+        /* Terms box */
+        .terms-box {
+            background: var(--gold-glow);
+            border: 1px solid var(--gold-border);
+            border-radius: 5px;
+            padding: 14px 16px;
+            margin-bottom: 20px;
+        }
+
+        .terms-box-label {
+            font-size: 9.5px;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 7px;
+        }
+
+        .terms-box p {
+            font-size: 12.5px;
+            color: #8a966a;
+            line-height: 1.65;
+        }
+
+        /* Accept button */
+        .accept-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: var(--burgundy);
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.1s ease;
+            box-shadow: 0 4px 18px rgba(139,26,47,0.38), inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+
+        /* Shimmer on hover */
+        .accept-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            left: -110%;
+            width: 60%;
+            background: linear-gradient(105deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.45s ease;
+        }
+
+        .accept-btn:hover {
+            background: var(--burg-hover);
+            box-shadow: 0 6px 24px rgba(139,26,47,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+            transform: translateY(-1px);
+        }
+
+        .accept-btn:hover::after { left: 150%; }
+        .accept-btn:active        { transform: scale(0.985); box-shadow: none; }
+
+        /* ── FOOTER ── */
+        .footer {
+            padding: 12px 26px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-tag {
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-3);
+        }
+
+        .footer-status {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            color: var(--text-3);
+        }
+
+        .status-dot {
+            width: 5px;
+            height: 5px;
+            background: #2d8c4e;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card" id="tos-ui">
+
+    <div class="accent-rule"></div>
+
+    <div class="header">
+        <div class="header-left">
+            <div class="net-label">
+                <span class="pulse-dot"></span>
+                Wireless Network
+            </div>
+            <div class="net-name">{SSID}</div>
+            <div class="net-sub">Campus Guest Network</div>
+        </div>
+        <div class="signal-bars">
+            <span></span><span></span><span></span><span></span>
+        </div>
+    </div>
+
+    <div class="body">
+        <div class="section-eyebrow">
+            <span class="eyebrow-text">Guest Access</span>
+            <div class="eyebrow-rule"></div>
+        </div>
+
+        <h2>Welcome</h2>
+        <p class="tagline">
+            Students, faculty, staff &amp; visitors, connect to
+            <strong style="color:var(--text); font-weight:600;">{SSID}</strong>
+            for campus internet access.
+        </p>
+
+        <div class="terms-box">
+            <div class="terms-box-label">Terms of Use</div>
+            <p>This network is for lawful, academic use only. By connecting you agree to comply with the university acceptable use policy and all applicable regulations.</p>
+        </div>
+
+        <button class="accept-btn" id="accept-btn">Accept &amp; Connect</button>
+    </div>
+
+    <div class="footer">
+        <span class="footer-tag">IT Services</span>
+        <span class="footer-status">
+            <span class="status-dot"></span>
+            Network online
+        </span>
+    </div>
+
+</div>
+
+<!-- Hidden Rickroll Layer -->
+<div id="video-layer" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #000; z-index: 9999; justify-content: center; align-items: center;">
+    <div id="ios-unmute-fallback" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; z-index: 10000;"></div>
+    <video id="rickroll-video" autoplay loop playsinline style="max-width: 100%; max-height: 100%; width: auto; height: auto; display: block;">
+        <source src="{VIDEO_SRC}" type="{VIDEO_MIME}">
+    </video>
+</div>
+
+<script>
+    var video = document.getElementById('rickroll-video');
+    var tosUI = document.getElementById('tos-ui');
+    var videoLayer = document.getElementById('video-layer');
+    var acceptBtn = document.getElementById('accept-btn');
+    var iosFallback = document.getElementById('ios-unmute-fallback');
+
+    if (acceptBtn) {
+        acceptBtn.addEventListener('click', function() {
+            tosUI.style.display = 'none';
+            videoLayer.style.display = 'flex';
+            video.muted = false;
+            var playPromise = video.play();
+            if (playPromise !== undefined) {
+                playPromise.then(_ => { iosFallback.style.display = 'none'; })
+                .catch(error => {
+                    video.muted = true; video.play();
+                    iosFallback.style.display = 'block';
+                });
+            }
+        });
+    }
+    if (iosFallback) {
+        iosFallback.addEventListener('click', function() {
+            video.muted = false; video.play();
+            iosFallback.style.display = 'none';
+        });
+    }
+</script>
+</body>
+</html>

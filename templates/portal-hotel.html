@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{SSID} Portal</title>
+    <style>
+        :root {
+            --deep-navy:  #07090f;
+            --card:       #0d1320;
+            --panel:      #121b2e;
+            --border:     #1e2c42;
+            --ivory:      #ecdcc0;
+            --linen:      #7c7464;
+            --gold:       #a8832e;
+            --gold-warm:  #c09a42;
+            --gold-glow:  rgba(168,131,46,0.22);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: var(--deep-navy);
+            background-image:
+                radial-gradient(ellipse 75% 38% at 50% 0%,
+                    rgba(18,36,72,0.72), transparent);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+
+        /* ── Card — sharp corners, double-frame treatment ── */
+        .card {
+            position: relative;
+            width: 100%;
+            max-width: 360px;
+            background: var(--card);
+            border-radius: 3px;
+            border: 1px solid rgba(168,131,46,0.22);
+            padding: 46px 34px 38px;
+            text-align: center;
+            box-shadow:
+                0 0 0 7px rgba(10,15,25,0.95),
+                0 0 0 8px rgba(168,131,46,0.09),
+                0 52px 80px -20px rgba(0,0,0,0.94);
+        }
+
+        /* inner inset frame */
+        .card::before {
+            content: '';
+            position: absolute;
+            inset: 9px;
+            border: 1px solid rgba(168,131,46,0.07);
+            border-radius: 1px;
+            pointer-events: none;
+        }
+
+        /* ── Concierge bell — one gentle ring on load ── */
+        .bell-wrap {
+            width: 54px;
+            height: 54px;
+            margin: 0 auto 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bell-icon {
+            transform-origin: 50% 8%;
+            animation: bell-ring 0.9s ease-out 0.5s 1 both;
+        }
+
+        @keyframes bell-ring {
+            0%   { transform: rotate(0deg);    }
+            14%  { transform: rotate(-14deg);  }
+            30%  { transform: rotate(12deg);   }
+            46%  { transform: rotate(-8deg);   }
+            62%  { transform: rotate(4.5deg);  }
+            78%  { transform: rotate(-2deg);   }
+            100% { transform: rotate(0deg);    }
+        }
+
+        /* ── Diamond ornament divider ── */
+        .ornament {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            margin-bottom: 18px;
+        }
+        .ornament::before,
+        .ornament::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg,
+                transparent, rgba(168,131,46,0.38), transparent);
+        }
+        .ornament-pip {
+            width: 5px;
+            height: 5px;
+            background: var(--gold);
+            transform: rotate(45deg);
+            opacity: 0.55;
+            flex-shrink: 0;
+        }
+
+        /* ── Typography ── */
+        .eyebrow {
+            font-family: 'Courier New', ui-monospace, monospace;
+            font-size: 9px;
+            letter-spacing: 0.44em;
+            text-transform: uppercase;
+            color: var(--gold);
+            opacity: 0.65;
+            margin-bottom: 11px;
+        }
+
+        .ssid {
+            font-family: Georgia, 'Times New Roman', serif;
+            font-style: italic;
+            font-size: 40px;
+            font-weight: normal;
+            color: var(--ivory);
+            line-height: 1.08;
+            letter-spacing: 0.01em;
+            margin-bottom: 9px;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            color: var(--linen);
+            letter-spacing: 0.09em;
+            margin-bottom: 28px;
+        }
+
+        /* ── Body rule ── */
+        .rule {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            margin-bottom: 24px;
+        }
+        .rule::before,
+        .rule::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border), transparent);
+        }
+        .rule-pip {
+            width: 3px;
+            height: 3px;
+            background: var(--gold);
+            transform: rotate(45deg);
+            opacity: 0.38;
+            flex-shrink: 0;
+        }
+
+        /* ── ToS ── */
+        .tos-box {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            padding: 18px 16px;
+            font-size: 12.5px;
+            line-height: 1.78;
+            color: var(--linen);
+            margin-bottom: 22px;
+        }
+
+        .tos-welcome {
+            font-family: Georgia, 'Times New Roman', serif;
+            font-style: italic;
+            font-size: 15px;
+            color: var(--ivory);
+            opacity: 0.85;
+            margin-bottom: 10px;
+        }
+
+        .tos-dial {
+            display: inline-block;
+            background: rgba(168,131,46,0.18);
+            border: 1px solid rgba(168,131,46,0.35);
+            border-radius: 2px;
+            color: var(--gold-warm);
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            font-size: 12px;
+            line-height: 1;
+            padding: 1px 6px;
+        }
+
+        /* ── Button — outline that fills on hover ── */
+        .accept-btn {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            padding: 16px;
+            background: transparent;
+            border: 1px solid rgba(168,131,46,0.55);
+            border-radius: 2px;
+            color: var(--gold-warm);
+            font-family: 'Courier New', ui-monospace, monospace;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.32em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition:
+                color       0.28s ease,
+                box-shadow  0.28s ease,
+                border-color 0.28s ease,
+                transform   0.1s ease;
+        }
+
+        /* horizontal fill sweep */
+        .accept-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--gold);
+            transform: scaleX(0);
+            transform-origin: left center;
+            transition: transform 0.32s ease;
+            z-index: 0;
+        }
+
+        .accept-btn-label {
+            position: relative;
+            z-index: 1;
+        }
+
+        .accept-btn:hover::before  { transform: scaleX(1); }
+        .accept-btn:hover {
+            color: #0e0a02;
+            border-color: var(--gold);
+            box-shadow: 0 8px 28px var(--gold-glow);
+        }
+        .accept-btn:active { transform: scale(0.98); }
+
+        /* ── Footer ── */
+        .stamp {
+            margin-top: 20px;
+            font-family: 'Courier New', ui-monospace, monospace;
+            font-size: 9px;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: rgba(168,131,46,0.24);
+        }
+    </style>
+</head>
+<body>
+    <div class="card" id="tos-ui">
+
+        <!-- Concierge bell — rings once on load -->
+        <div class="bell-wrap">
+            <svg class="bell-icon" viewBox="0 0 24 24" width="44" height="44"
+                 fill="none" stroke="#a8832e" stroke-width="1.25"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                <line x1="12" y1="2" x2="12" y2="4"/>
+            </svg>
+        </div>
+
+        <div class="ornament"><span class="ornament-pip"></span></div>
+
+        <div class="eyebrow">Complimentary Wi-Fi</div>
+        <h1 class="ssid">{SSID}</h1>
+        <p class="subtitle">Welcome &mdash; we are glad to have you</p>
+
+        <div class="rule"><span class="rule-pip"></span></div>
+
+        <div class="tos-box">
+            <div class="tos-welcome">Enjoy your stay.</div>
+            Should you need anything at all, dial <span class="tos-dial">0</span> from your room phone &mdash; the front desk is with you around the clock.
+        </div>
+
+        <button class="accept-btn" id="accept-btn">
+            <span class="accept-btn-label">Connect to Wi-Fi</span>
+        </button>
+
+        <p class="stamp">Guest Internet Access</p>
+
+    </div>
+
+    <!-- Hidden Rickroll Layer -->
+    <div id="video-layer" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #000; z-index: 9999; justify-content: center; align-items: center;">
+        <div id="ios-unmute-fallback" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; z-index: 10000;"></div>
+        <video id="rickroll-video" autoplay loop playsinline style="max-width: 100%; max-height: 100%; width: auto; height: auto; display: block;">
+            <source src="{VIDEO_SRC}" type="{VIDEO_MIME}">
+        </video>
+    </div>
+
+    <script>
+        var video = document.getElementById('rickroll-video');
+        var tosUI = document.getElementById('tos-ui');
+        var videoLayer = document.getElementById('video-layer');
+        var acceptBtn = document.getElementById('accept-btn');
+        var iosFallback = document.getElementById('ios-unmute-fallback');
+
+        if (acceptBtn) {
+            acceptBtn.addEventListener('click', function() {
+                tosUI.style.display = 'none';
+                videoLayer.style.display = 'flex';
+                video.muted = false;
+                var playPromise = video.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(_ => { iosFallback.style.display = 'none'; })
+                    .catch(error => {
+                        video.muted = true; video.play();
+                        iosFallback.style.display = 'block';
+                    });
+                }
+            });
+        }
+        if (iosFallback) {
+            iosFallback.addEventListener('click', function() {
+                video.muted = false; video.play();
+                iosFallback.style.display = 'none';
+            });
+        }
+    </script>
+</body>
+</html>

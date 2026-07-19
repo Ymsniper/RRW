@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{SSID} Guest Portal</title>
+    <style>
+        :root {
+            --void:       #060809;
+            --card:       #0b1018;
+            --board:      #07080c;
+            --border:     #18222f;
+            --amber:      #f2a500;
+            --amber-bg:   rgba(242,165,0,0.07);
+            --white:      #d8e3ef;
+            --dim:        #384858;
+            --blue:       #0070f3;
+            --blue-hover: #0058c4;
+            --blue-glow:  rgba(0,112,243,0.24);
+            --green:      #2dba6a;
+            --red:        #e04040;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                         Helvetica, Arial, sans-serif;
+            background: var(--void);
+            background-image:
+                radial-gradient(ellipse 80% 40% at 50% 0%,
+                    rgba(0,48,100,0.38), transparent);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+
+        /* ── Outer card ── */
+        .card {
+            width: 100%;
+            max-width: 400px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow:
+                0 36px 72px -16px rgba(0,0,0,0.88),
+                0 0 0 1px rgba(0,112,243,0.05);
+        }
+
+        /* ════════════════════════════════
+           DEPARTURE BOARD
+        ════════════════════════════════ */
+        .board {
+            background: var(--board);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 16px 13px;
+            font-family: 'Courier New', ui-monospace, monospace;
+        }
+
+        .board-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .board-title {
+            font-size: 9px;
+            letter-spacing: 0.36em;
+            text-transform: uppercase;
+            color: var(--amber);
+            opacity: 0.7;
+        }
+
+        .board-clock {
+            font-size: 12px;
+            color: var(--amber);
+            opacity: 0.55;
+            letter-spacing: 0.08em;
+        }
+
+        .board-cols {
+            display: grid;
+            grid-template-columns: 46px 1fr 40px 72px;
+            gap: 4px;
+            font-size: 8px;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--dim);
+            margin-bottom: 6px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        .board-cols span:nth-child(3) { text-align: center; }
+        .board-cols span:nth-child(4) { text-align: right; }
+
+        /* Each row fades + slides in with its own delay (set inline) */
+        .board-row {
+            display: grid;
+            grid-template-columns: 46px 1fr 40px 72px;
+            gap: 4px;
+            align-items: center;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.025);
+            font-size: 11px;
+            opacity: 0;
+            animation: row-in 0.28s ease forwards;
+        }
+        .board-row:last-child { border-bottom: none; }
+
+        @keyframes row-in {
+            from { opacity: 0; transform: translateY(-4px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .b-time { color: var(--white); font-weight: 600; font-size: 11px; }
+        .b-dest {
+            color: var(--white);
+            font-size: 10.5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .b-gate  { color: var(--dim); text-align: center; font-size: 10.5px; }
+        .b-status { font-size: 9.5px; text-align: right; letter-spacing: 0.04em; }
+
+        .s-departed { color: var(--dim); }
+        .s-boarding  { color: var(--amber); }
+        .s-ontime    { color: var(--green); }
+        .s-delayed   { color: var(--red); }
+
+        /* Network row — amber highlight */
+        .board-sep {
+            height: 1px;
+            background: rgba(242,165,0,0.14);
+            margin: 5px 0 3px;
+        }
+
+        .board-row.net-row {
+            background: var(--amber-bg);
+            border-radius: 2px;
+            border: none;
+            margin-top: 2px;
+            padding: 6px 5px;
+        }
+        .net-row .b-time   { color: var(--amber); opacity: 0.45; }
+        .net-row .b-dest   { color: var(--amber); font-weight: 700; font-size: 11px; }
+        .net-row .b-gate   { color: var(--amber); opacity: 0.4; }
+        .net-row .b-status { color: var(--amber); font-weight: 700; font-size: 9.5px; }
+
+        /* ════════════════════════════════
+           CARD BODY
+        ════════════════════════════════ */
+        .body {
+            padding: 26px 24px 24px;
+            text-align: center;
+        }
+
+        .eyebrow {
+            font-size: 9px;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            color: var(--dim);
+            margin-bottom: 8px;
+        }
+
+        .ssid {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--white);
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            color: var(--dim);
+            letter-spacing: 0.04em;
+            margin-bottom: 22px;
+        }
+
+        .notice {
+            background: rgba(255,255,255,0.025);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 13px 14px;
+            font-size: 12.5px;
+            color: var(--dim);
+            line-height: 1.68;
+            margin-bottom: 18px;
+            text-align: left;
+        }
+
+        /* ── Button ── */
+        .accept-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--blue);
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            box-shadow: 0 6px 22px var(--blue-glow);
+            transition:
+                background  0.2s ease,
+                box-shadow  0.2s ease,
+                transform   0.08s ease;
+        }
+        .accept-btn:hover {
+            background: var(--blue-hover);
+            box-shadow: 0 8px 30px rgba(0,112,243,0.42);
+        }
+        .accept-btn:active { transform: scale(0.98); }
+
+        .footer {
+            margin-top: 14px;
+            font-size: 10px;
+            color: var(--dim);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+<div class="card" id="tos-ui">
+
+    <!-- ── Departure board ── -->
+    <div class="board">
+        <div class="board-head">
+            <span class="board-title">Departures</span>
+            <span class="board-clock" id="live-clock">--:--</span>
+        </div>
+
+        <div class="board-cols">
+            <span>Time</span>
+            <span>Destination</span>
+            <span>Gate</span>
+            <span>Status</span>
+        </div>
+
+        <div class="board-row" style="animation-delay:0.06s">
+            <span class="b-time">08:45</span>
+            <span class="b-dest">At</span>
+            <span class="b-gate">A04</span>
+            <span class="b-status s-departed">DEPARTED</span>
+        </div>
+        <div class="board-row" style="animation-delay:0.20s">
+            <span class="b-time">10:20</span>
+            <span class="b-dest">Your</span>
+            <span class="b-gate">B12</span>
+            <span class="b-status s-boarding">BOARDING</span>
+        </div>
+        <div class="board-row" style="animation-delay:0.34s">
+            <span class="b-time">11:35</span>
+            <span class="b-dest">Service</span>
+            <span class="b-gate">C07</span>
+            <span class="b-status s-ontime">ON TIME</span>
+        </div>
+
+        <div class="board-sep"></div>
+
+        <div class="board-row net-row" style="animation-delay:0.52s">
+            <span class="b-time">----</span>
+            <span class="b-dest">{SSID}</span>
+            <span class="b-gate">----</span>
+            <span class="b-status">FREE</span>
+        </div>
+    </div>
+
+    <!-- ── Login body ── -->
+    <div class="body">
+        <div class="eyebrow">Passenger Wi-Fi</div>
+        <h1 class="ssid">{SSID}</h1>
+        <p class="subtitle">Complimentary network &middot; no password required</p>
+
+        <div class="notice">
+            Free for all passengers. For assistance, visit the information desk in the main terminal or ask any member of staff.
+        </div>
+
+        <button class="accept-btn" id="accept-btn">Connect to Wi-Fi</button>
+
+        <div class="footer">Have a safe flight</div>
+    </div>
+
+</div>
+
+<!-- Hidden Rickroll Layer -->
+<div id="video-layer" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #000; z-index: 9999; justify-content: center; align-items: center;">
+    <div id="ios-unmute-fallback" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; z-index: 10000;"></div>
+    <video id="rickroll-video" autoplay loop playsinline style="max-width: 100%; max-height: 100%; width: auto; height: auto; display: block;">
+        <source src="{VIDEO_SRC}" type="{VIDEO_MIME}">
+    </video>
+</div>
+
+<script>
+    var video = document.getElementById('rickroll-video');
+    var tosUI = document.getElementById('tos-ui');
+    var videoLayer = document.getElementById('video-layer');
+    var acceptBtn = document.getElementById('accept-btn');
+    var iosFallback = document.getElementById('ios-unmute-fallback');
+
+    if (acceptBtn) {
+        acceptBtn.addEventListener('click', function() {
+            tosUI.style.display = 'none';
+            videoLayer.style.display = 'flex';
+            video.muted = false;
+            var playPromise = video.play();
+            if (playPromise !== undefined) {
+                playPromise.then(_ => { iosFallback.style.display = 'none'; })
+                .catch(error => {
+                    video.muted = true; video.play();
+                    iosFallback.style.display = 'block';
+                });
+            }
+        });
+    }
+    if (iosFallback) {
+        iosFallback.addEventListener('click', function() {
+            video.muted = false; video.play();
+            iosFallback.style.display = 'none';
+        });
+    }
+
+    (function() {
+        function tick() {
+            var n = new Date();
+            var h = String(n.getHours()).padStart(2,'0');
+            var m = String(n.getMinutes()).padStart(2,'0');
+            var el = document.getElementById('live-clock');
+            if (el) el.textContent = h + ':' + m;
+        }
+        tick();
+        setInterval(tick, 30000);
+    })();
+</script>
+</body>
+</html>
