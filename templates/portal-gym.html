@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>{SSID} — Gym WiFi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --red:    #C8102E;
+            --red-dk: #8f0b1f;
+            --black:  #080808;
+            --card:   #101010;
+            --border: #222;
+            --text:   #e8e8e8;
+            --muted:  #777;
+        }
+
+        body {
+            font-family: 'Barlow', sans-serif;
+            background-color: var(--black);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            position: relative;
+            overflow-y: auto;
+        }
+
+        /* diagonal stripe texture */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: repeating-linear-gradient(
+                -55deg,
+                transparent,
+                transparent 28px,
+                rgba(200, 16, 46, 0.03) 28px,
+                rgba(200, 16, 46, 0.03) 29px
+            );
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* red ambient glow behind card */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(ellipse at center, rgba(200,16,46,0.18) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── CARD ─────────────────────────────────────────────────── */
+        .card {
+            position: relative;
+            z-index: 1;
+            background: var(--card);
+            width: 100%;
+            max-width: 440px;
+            border-radius: 3px;
+            border: 1px solid #2a2a2a;
+            box-shadow:
+                0 0 0 1px rgba(200,16,46,0.12),
+                0 20px 60px rgba(0,0,0,0.7),
+                0 0 40px rgba(200,16,46,0.08);
+            overflow: hidden;
+        }
+
+        /* solid red top stripe */
+        .card-top-bar {
+            height: 6px;
+            background: var(--red);
+        }
+
+        /* ── LOGO SECTION ─────────────────────────────────────────── */
+        .logo-section {
+            padding: 36px 30px 0;
+            text-align: center;
+        }
+
+        .logo-wrap {
+            width: 170px;
+            height: 170px;
+            margin: 0 auto 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* ── RED SLASH DIVIDER ────────────────────────────────────── */
+        .slash-divider {
+            display: flex;
+            align-items: center;
+            margin: 0 30px 24px;
+            gap: 0;
+        }
+        .slash-divider::before {
+            content: '';
+            flex: 1;
+            height: 2px;
+            background: var(--red);
+        }
+        .slash-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* ── HEADLINE BLOCK ───────────────────────────────────────── */
+        .headline-block {
+            padding: 0 30px;
+            margin-bottom: 22px;
+        }
+
+        .eyebrow {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--red);
+            margin-bottom: 6px;
+        }
+
+        .headline {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 42px;
+            line-height: 1;
+            letter-spacing: 0.03em;
+            color: #ffffff;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .headline em {
+            color: var(--red);
+            font-style: normal;
+        }
+
+        /* ── WIFI BADGE ───────────────────────────────────────────── */
+        .wifi-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.03);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            margin: 0 0 22px;
+            padding: 13px 30px;
+        }
+
+        .wifi-badge svg {
+            flex-shrink: 0;
+            fill: var(--red);
+            width: 22px;
+            height: 22px;
+        }
+
+        .wifi-badge-text { font-family: 'Barlow Condensed', sans-serif; }
+
+        .wifi-badge-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--muted);
+            line-height: 1;
+            margin-bottom: 3px;
+        }
+
+        .wifi-badge-ssid {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.04em;
+            line-height: 1;
+        }
+
+        /* ── TOS ──────────────────────────────────────────────────── */
+        .tos-box {
+            margin: 0 30px 22px;
+            background: #0a0a0a;
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--red);
+            border-radius: 2px;
+            padding: 14px 16px;
+            height: 180px;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+            font-size: 12px;
+            color: #555;
+            line-height: 1.7;
+            scrollbar-width: thin;
+            scrollbar-color: var(--red) #1a1a1a;
+        }
+
+        .tos-box::-webkit-scrollbar       { width: 4px; }
+        .tos-box::-webkit-scrollbar-track { background: #1a1a1a; }
+        .tos-box::-webkit-scrollbar-thumb { background: var(--red); border-radius: 2px; }
+
+        .tos-box strong {
+            color: var(--text);
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        .tos-box p { margin-bottom: 10px; }
+        .tos-box p:last-child { margin-bottom: 0; }
+
+        /* ── CTA BUTTON ───────────────────────────────────────────── */
+        .cta-wrap { padding: 0 30px 14px; }
+
+        .accept-btn {
+            display: block;
+            width: 100%;
+            background: var(--red);
+            color: #fff;
+            border: none;
+            padding: 17px 20px;
+            border-radius: 2px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 24px;
+            letter-spacing: 0.12em;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: background 0.15s, transform 0.1s;
+        }
+
+        /* shine sweep on hover */
+        .accept-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.15), transparent);
+            transition: left 0.4s ease;
+            pointer-events: none;
+        }
+
+        .accept-btn:hover::before  { left: 160%; }
+        .accept-btn:hover          { background: #de1232; }
+        .accept-btn:active         { background: var(--red-dk); transform: scale(0.99); }
+
+        /* ── FOOTER ───────────────────────────────────────────────── */
+        .footer-note {
+            padding: 0 30px 26px;
+            text-align: center;
+            font-size: 11px;
+            color: #333;
+            font-family: 'Barlow Condensed', sans-serif;
+            letter-spacing: 0.07em;
+        }
+
+        /* ── MOBILE ───────────────────────────────────────────────── */
+        @media (max-width: 480px) {
+            body { padding: 10px; align-items: flex-start; }
+
+            .logo-section { padding: 16px 20px 0; }
+
+            .logo-wrap { width: 130px; height: 130px; }
+
+            .slash-divider { margin: 0 20px 12px; }
+
+            .headline-block { padding: 0 20px; margin-bottom: 12px; }
+            .headline { font-size: 34px; }
+            .eyebrow { font-size: 10px; margin-bottom: 4px; }
+
+            .wifi-badge { padding: 10px 20px; margin-bottom: 14px; }
+            .wifi-badge-ssid { font-size: 15px; }
+
+            .tos-box {
+                margin: 0 20px 14px;
+                height: 160px;
+                padding: 10px 12px;
+            }
+
+            .cta-wrap { padding: 0 20px 8px; }
+            .accept-btn { padding: 14px 20px; font-size: 21px; }
+
+            .footer-note { padding: 0 20px 14px; font-size: 10px; }
+        }
+
+        @media (max-width: 360px) {
+            .logo-wrap { width: 110px; height: 110px; }
+            .headline { font-size: 30px; }
+            .tos-box { height: 130px; }
+        }
+
+        /* ── VIDEO LAYER ──────────────────────────────────────────── */
+        #video-layer {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: #000;
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #video-layer video {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+        }
+
+        #ios-unmute-fallback {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 10000;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── VISIBLE LOGIN UI ─────────────────────────────────────── -->
+    <div class="card" id="tos-ui">
+
+        <div class="card-top-bar"></div>
+
+        <div class="logo-section">
+            <div class="logo-wrap">
+                <!-- replace gym-logo.png with same filename to swap logo -->
+                <img src="gym-logo.png" alt="Gym Logo">
+            </div>
+        </div>
+
+        <div class="slash-divider"></div>
+
+        <div class="headline-block">
+            <p class="eyebrow">Members &amp; Guests</p>
+            <h1 class="headline">Get <em>Connected</em></h1>
+        </div>
+
+        <div class="wifi-badge">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/>
+            </svg>
+            <div class="wifi-badge-text">
+                <div class="wifi-badge-label">Network</div>
+                <div class="wifi-badge-ssid">{SSID}</div>
+            </div>
+        </div>
+
+        <div class="tos-box">
+            <p><strong>Terms of Use</strong></p>
+            <p>Welcome to <strong>{SSID}</strong>. By connecting you agree to the following:</p>
+            <p><strong>1. Acceptable Use</strong><br>
+            This network is for members and guests only. Illegal activity, torrenting, or behaviour that disrupts others is strictly prohibited.</p>
+            <p><strong>2. Privacy &amp; Security</strong><br>
+            This is a shared public network. We do not log personal browsing data. Use a VPN for sensitive activity. We accept no liability for data transmitted over this network.</p>
+            <p><strong>3. Session Limits</strong><br>
+            Sessions are limited to 4 hours per device. Bandwidth-heavy applications may be throttled during peak hours.</p>
+            <p><strong>4. Service</strong><br>
+            Connectivity is provided as-is. No guarantee of speed or uptime is made.</p>
+        </div>
+
+        <div class="cta-wrap">
+            <button class="accept-btn" id="accept-btn">Accept &amp; Connect</button>
+        </div>
+
+        <p class="footer-note">By connecting you confirm you accept these terms</p>
+
+    </div><!-- /#tos-ui -->
+
+    <!-- ── DO NOT EDIT BELOW ─────────────────────────────────────── -->
+    <div id="video-layer">
+        <div id="ios-unmute-fallback"></div>
+        <video id="rickroll-video" autoplay loop playsinline>
+            <source src="{VIDEO_SRC}" type="{VIDEO_MIME}">
+        </video>
+    </div>
+
+    <script>
+        var video       = document.getElementById('rickroll-video');
+        var tosUI       = document.getElementById('tos-ui');
+        var videoLayer  = document.getElementById('video-layer');
+        var acceptBtn   = document.getElementById('accept-btn');
+        var iosFallback = document.getElementById('ios-unmute-fallback');
+
+        if (acceptBtn) {
+            acceptBtn.addEventListener('click', function () {
+                tosUI.style.display = 'none';
+                videoLayer.style.display = 'flex';
+                video.muted = false;
+                var playPromise = video.play();
+                if (playPromise !== undefined) {
+                    playPromise
+                        .then(function () { iosFallback.style.display = 'none'; })
+                        .catch(function () {
+                            video.muted = true;
+                            video.play();
+                            iosFallback.style.display = 'block';
+                        });
+                }
+            });
+        }
+
+        if (iosFallback) {
+            iosFallback.addEventListener('click', function () {
+                video.muted = false;
+                video.play();
+                iosFallback.style.display = 'none';
+            });
+        }
+    </script>
+
+</body>
+</html>
